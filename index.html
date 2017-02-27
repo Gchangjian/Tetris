@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>Examples</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<link href="" rel="stylesheet">
+</head>
+<body>
+<div style="width: 200px;text-align: center;font-size: 20px;">40*20</div>
+<canvas id="canvas" height="400" width="200" style="border: 1px solid red;"></canvas>
+    <script type="text/javascript">
+    var ctx = document.getElementById('canvas').getContext('2d');
+    var table = [];
+    var newtable = [];
+    var cx = [];
+    var cy = [];
+    var xarr = [];
+    var yarr = [];
+    var time ;
+    var g = 0;
+    var score = 0;
+    // 生成二位数组，绘制俄罗斯方块框架
+    for(var y=0;y<40;y++){
+        table.push([]);
+        newtable.push([]);
+        for(var x=0;x<20;x++){
+                table[y][x] = [];
+                newtable[y][x] = [];
+                // 生成方框中特定的点线面
+            // if(x==10&&y==29){
+            //     table[y][x] = [1];
+            // }
+            // if(x==5&&y==2){
+            //     table[y][x] = [1];
+            // }
+            // if(x!==2&&y==38){
+            //     table[y][x] = [1];
+            // }
+            // if(y==39 && x!==1){
+            //     table[y][x] = [1];
+            // }
+        }
+    }
+start();
+    // 删除二维数组中满足消除的行数
+    function del(table){
+        var ntable = table;
+        for(var y=table.length - 1;y>0;y--){
+            var len = 0;
+            for(var x=0;x<table[y].length;x++){
+                if(table[y][x] == 1){
+                    len++;
+                }
+            }
+            if(len == 20){
+                score++;
+                for(var x=0;x<table[y].length;x++){
+                    if(table[y-1]){
+                        table[y][x] = table[y-1][x];
+                    }else{
+                        table[y][x] = [];
+                    }
+                }
+            }
+        }
+        return ntable;
+    }
+    drawTable(table);
+    // 会画出二维数组的方框
+    function drawTable(table){
+        ctx.beginPath();
+        for(var i=0;i<60;i++){
+            for(var j=0;j<40;j++){
+                ctx.clearRect(i*10, j*10, 10, 10);                
+            }
+        }
+        table = del(table);
+        for(var y=0;y<table.length;y++){
+            for(var x=0;x<table[y].length;x++){
+                if(table[y][x] == 1){
+                    ctx.fillRect(x*10, y*10, 10, 10);                    
+                }
+            }
+        }
+        ctx.closePath();
+    }
+    // 擦除图形
+    function cleanShape(){
+        for(var i=0;i<xarr.length;i++){
+            ctx.clearRect(xarr[i]*10, yarr[i]*10, 10, 10);
+        }
+    }
+    // 横向移动
+    function moveX(xarr, yarr, leftORright){
+        var move = false;
+        if(leftORright == 1){
+            if(checkTable(table, xarr, yarr, 1) && checkside(xarr, 1)){
+                move = true;
+            }
+            if(move){
+                cleanShape();
+                for(var i=0;i<xarr.length;i++){
+                    xarr[i] = xarr[i]+1;
+                }
+            }
+        }else if(leftORright == 2){
+                if(checkTable(table, xarr, yarr, 2) && checkside(xarr, 2)){
+                    move = true;
+                }
+                if(move){
+                    cleanShape();
+                    for(var i=0;i<xarr.length;i++){
+                        xarr[i] = xarr[i]-1;
+                    }
+                }
+        }
+        drawShape();
+    }
+    var num = 0;
+    var shape = [{},{},{},{}];
+    var number = Math.round(Math.random()*6+1);
+    // drawShape(5);
+    drawShape(number);
+    // 改变图像形状
+    function changeShape(){
+        cleanShape(xarr, yarr);
+        num++;
+        if(num >= 4){
+            num = 0;
+        }
+        xarr = shape[num]['xarr'];
+        yarr = shape[num]['yarr'];
+        drawShape();
+    }
+    // 绘画图像
+    function drawShape(nth){
+        // var shapeArr1 = [{xarr:[0,0,0,1],yarr:[0,1,2,0]},{xarr:[0,1,2,2],yarr:[0,0,0,1]},
+        //                  {xarr:[0,1,1,1],yarr:[2,0,1,2]},{xarr:[0,0,1,2],yarr:[0,1,1,1]}];
+        // var shapeArr2 = [{xarr:[0,0,1,1],yarr:[0,1,1,2]},{xarr:[0,1,1,2],yarr:[1,1,0,0]},
+        //                  {xarr:[0,0,1,1],yarr:[0,1,1,2]},{xarr:[0,1,1,2],yarr:[1,1,0,0]}];
+        // var shapeArr3 = [{xarr:[0,0,0,1],yarr:[0,1,2,0]},{xarr:[0,1,2,2],yarr:[0,0,0,1]},
+        //                  {xarr:[0,1,1,1],yarr:[2,2,1,0]},{xarr:[0,0,1,2],yarr:[0,1,1,1]}];
+        // var shapeArr4 = [{xarr:[0,1,1,1],yarr:[0,0,1,2]},{xarr:[0,1,2,2],yarr:[1,1,0,1]},
+        //                  {xarr:[0,0,0,1],yarr:[0,1,2,2]},{xarr:[0,0,1,2],yarr:[0,1,0,0]}];
+        // var shapeArr5 = [{xarr:[0,0,0,0],yarr:[0,1,2,3]},{xarr:[0,1,2,3],yarr:[0,0,0,0]},
+        //                  {xarr:[0,0,0,0],yarr:[0,1,2,3]},{xarr:[0,1,2,3],yarr:[0,0,0,0]}];
+        // var shapeArr6 = [{xarr:[0,1,0,1],yarr:[0,0,1,1]},{xarr:[0,1,0,1],yarr:[0,0,1,1]},
+        //                  {xarr:[0,1,0,1],yarr:[0,0,1,1]},{xarr:[0,1,0,1],yarr:[0,0,1,1]}];
+        // var shapeArr7 = [{xarr:[0,1,1,2],yarr:[0,0,1,0]},{xarr:[0,1,1,1],yarr:[1,0,1,2]},
+        //                  {xarr:[0,1,1,2],yarr:[1,1,0,1]},{xarr:[0,0,0,1],yarr:[0,1,2,1]}];
+        var shapes = [[{xarr:[0,0,0,1],yarr:[0,1,2,0]},{xarr:[0,1,2,2],yarr:[0,0,0,1]},
+                         {xarr:[0,1,1,1],yarr:[2,0,1,2]},{xarr:[0,0,1,2],yarr:[0,1,1,1]}],
+                     [{xarr:[0,0,1,1],yarr:[0,1,1,2]},{xarr:[0,1,1,2],yarr:[1,1,0,0]},
+                         {xarr:[0,0,1,1],yarr:[0,1,1,2]},{xarr:[0,1,1,2],yarr:[1,1,0,0]}],
+                     [{xarr:[0,0,0,1],yarr:[0,1,2,0]},{xarr:[0,1,2,2],yarr:[0,0,0,1]},
+                         {xarr:[0,1,1,1],yarr:[2,2,1,0]},{xarr:[0,0,1,2],yarr:[0,1,1,1]}],
+                     [{xarr:[0,1,1,1],yarr:[0,0,1,2]},{xarr:[0,1,2,2],yarr:[1,1,0,1]},
+                         {xarr:[0,0,0,1],yarr:[0,1,2,2]},{xarr:[0,0,1,2],yarr:[0,1,0,0]}],
+                     [{xarr:[0,0,0,0],yarr:[0,1,2,3]},{xarr:[0,1,2,3],yarr:[0,0,0,0]},
+                         {xarr:[0,0,0,0],yarr:[0,1,2,3]},{xarr:[0,1,2,3],yarr:[0,0,0,0]}],
+                     [{xarr:[0,1,0,1],yarr:[0,0,1,1]},{xarr:[0,1,0,1],yarr:[0,0,1,1]},
+                         {xarr:[0,1,0,1],yarr:[0,0,1,1]},{xarr:[0,1,0,1],yarr:[0,0,1,1]}],
+                     [{xarr:[0,1,1,2],yarr:[0,0,1,0]},{xarr:[0,1,1,1],yarr:[1,0,1,2]},
+                         {xarr:[0,1,1,2],yarr:[1,1,0,1]},{xarr:[0,0,0,1],yarr:[0,1,2,1]}]
+                    ];
+
+        if(nth){
+            num = Math.round(Math.random()*3);
+            // switch(nth){
+            //     case 1: xarr=[0,0,0,1];yarr=[0,1,2,0];
+            //         break;
+            //     case 2: xarr=[0,0,1,1];yarr=[0,1,1,2];
+            //         break;
+            //     case 3: xarr=[0,0,0,1];yarr=[0,1,2,0];
+            //         break;
+            //     case 4: xarr=[0,1,1,1];yarr=[0,0,1,2];
+            //         break;
+            //     case 5: xarr=[0,0,0,0];yarr=[0,1,2,3];
+            //         break;
+            //     case 6: xarr=[0,1,0,1];yarr=[0,0,1,1];
+            //         break;
+            //     case 7: xarr=[0,1,1,2];yarr=[0,0,1,0];
+            //         break;
+            // }
+            xarr = shapes[nth-1][num].xarr;
+            yarr = shapes[nth-1][num].yarr;
+            shape = shapes[nth-1];
+        }
+        for(var i=0;i<xarr.length;i++){
+            ctx.beginPath();
+            ctx.fillRect(xarr[i]*10, yarr[i]*10, 10, 10);
+        }
+    }
+// 开始游戏
+    function start(){
+        time = setInterval(function(){
+            // g++;
+            if(checkTable(table, xarr, yarr)){
+                cleanShape();
+                for(var i=0;i<yarr.length;i++){
+                    yarr[i] = yarr[i]+1;
+                }
+            }else{
+                makeTable();
+                clearInterval(time);
+            }
+            drawShape();
+        }, 100);        
+    }
+    // 生成方框新的二维数组
+    function makeTable(){
+        for(var i=0;i<xarr.length;i++){
+            if(table[yarr[i]]){
+                table[yarr[i]][xarr[i]] = [1];                
+            }
+        }
+        table = del(table);
+        drawTable(table);
+        number = Math.round(Math.random()*6+1);
+        // drawShape(5);  // number
+        drawShape(number);
+        start();
+    }
+    // 检查移动过程中是否碰到已有的图形
+    function checkTable(table, arrx, arry, leri){
+        var inset = true;
+        var count = 0;
+        if(leri){
+            if(leri == 1){
+                for(var i=0;i<arry.length;i++){
+                    if(table[arry[i]][arrx[i]+1] == 1){
+                        inset = false;
+                    }
+                }            
+            }else if(leri == 2){
+                for(var i=0;i<arry.length;i++){
+                    if(table[arry[i]][arrx[i]-1] == 1){
+                        inset = false;
+                    }
+                }            
+            }            
+        }else{
+            for(var i=0;i<arrx.length;i++){
+                if(table[arry[i]+1]){
+                    if(table[arry[i]+1][arrx[i]] == 1){
+                        count++;
+                    }                    
+                }else{
+                    count = 4;
+                }
+            }
+        }
+        if(count > 0){
+            inset = false;
+        }
+        return inset;
+    }
+    // 边界检查
+    function checkside(xarr, leRi){
+        var moveTrue = false;
+        var left ;
+        var right ;
+        if(leRi == 2){
+            left = xarr[0]-1;
+            if(left>=0){
+                moveTrue = true;
+            }
+        }else{
+            right = xarr[3]+1;
+            if(right<20){
+                moveTrue = true;
+            }
+        }
+        return moveTrue;
+    }
+
+    document.onkeydown = function(e){
+        var keycode = e.keyCode;
+        switch(keycode){
+            case 37: moveX(xarr, yarr, 2);         // 左下右上
+                break;
+            case 40: //cleanShape(); 向下移动没有写
+                break;
+            case 39: moveX(xarr, yarr, 1); 
+                break;
+            case 38: changeShape();
+                break;
+        }
+    }
+    </script>
+</body>
+</html>
